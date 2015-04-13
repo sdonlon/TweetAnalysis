@@ -1,0 +1,26 @@
+python competitor_discovery.py -i /Users/sandy.donlon/BrandBattleClients/Polar/polarproducts.csv -o /Users/sandy.donlon/BrandBattleClients/Reynolds/polarproducts_outputagain.csv -s 2014-12-01 -e 2015-03-31
+
+
+scp /Users/sandy.donlon/BrandBattleClients/Polar/polarproducts_outputagain.csv ip-10-100-21-135.dev.us-east-1.nexus:
+
+python dbquery.py -prodidcsv /Users/sandy.donlon/BrandBattleClients/Polar/polarproducts_output.csv -csv /Users/sandy.donlon/BrandBattleClients/Polar/polarproductsreviews.csv -e 2015-02-28
+
+scp /Users/sandy.donlon/BrandBattleClients/Polar/polarproductsreviews.csv ip-10-100-21-135.dev.us-east-1.nexus:
+
+ssh sdonlon@ip-10-100-21-135.dev.us-east-1.nexus
+
+cd /var/brandbattle/product-preload
+
+python start_new_competitive_set.py -n PolarWatches
+
+python product_loader.py -c 112 -b ~/polarproducts_output.csv -loaddb
+
+cd /var/brandbattle/product-matching
+
+python reconcile_brands.py -c 112
+
+cd /var/brandbattle/dataloader
+
+python data_loader.py -c 110 -s 2014-01-01 -e 2015-03-30 -bvreviews ~/polarproductsreviews.csv -amazonreviews none -startcompetitor 2014-01-01 -alltime
+
+python data_loader.py -c 94-s 2014-01-01 -e 2015-03-16 -bvreviews ~/rev_cradles.csv -amazonreviews ~/cradles_amzn_reviews_output.csv -min_bl_pv 2 -min_bl_brands -6 -startcompetitor 2014-01-01 -verbose -alltime
